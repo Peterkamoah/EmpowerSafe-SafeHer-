@@ -10,7 +10,7 @@ export function Logo({ className }: { className?: string }) {
       )}
     >
       <ShieldCheck className="h-8 w-8" />
-      <span>EmpowerSafe</span>
+      <span>SafeHer</span>
     </div>
   );
 }

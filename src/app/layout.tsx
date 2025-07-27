@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "EmpowerSafe",
+  title: "SafeHer",
   description: "A safety app for women, built with Next.js and Firebase.",
 };
 
