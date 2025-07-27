@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, MessageSquare, UserCircle } from "lucide-react";
+import { Home, MessageSquare, UserCircle, LogOut } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -18,6 +18,10 @@ import {
 import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/use-auth";
+import { Skeleton } from "@/components/ui/skeleton";
+import { auth } from "@/lib/firebase";
+import { useRouter } from "next/navigation";
 
 const navItems = [
   { href: "/dashboard", icon: Home, label: "Home" },
@@ -31,6 +35,25 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await auth.signOut();
+    router.push('/');
+  }
+
+  if (loading) {
+    return (
+       <div className="flex h-screen w-screen items-center justify-center">
+         <Skeleton className="h-full w-full" />
+       </div>
+    );
+  }
+  
+  if (!user) {
+    return null; // The useAuth hook will handle the redirect
+  }
 
   return (
     <SidebarProvider>
@@ -56,20 +79,26 @@ export default function DashboardLayout({
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
-          <div className="flex items-center gap-2 p-2">
-            <Avatar className="h-8 w-8">
-              <AvatarImage
-                src="https://placehold.co/40x40.png"
-                alt="User avatar"
-                data-ai-hint="woman portrait"
-              />
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col text-sm group-data-[collapsible=icon]:hidden">
-              <span className="font-semibold text-sidebar-foreground">
-                User
-              </span>
+          <div className="flex flex-col gap-2 p-2">
+            <div className="flex items-center gap-2">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src={user.photoURL || "https://placehold.co/40x40.png"}
+                    alt={user.displayName || "User avatar"}
+                    data-ai-hint="woman portrait"
+                  />
+                  <AvatarFallback>{user.displayName?.[0] || 'U'}</AvatarFallback>
+                </Avatar>
+                <div className="flex flex-col text-sm group-data-[collapsible=icon]:hidden">
+                  <span className="font-semibold text-sidebar-foreground">
+                    {user.displayName || 'User'}
+                  </span>
+                </div>
             </div>
+             <Button variant="ghost" size="sm" className="justify-start group-data-[collapsible=icon]:justify-center" onClick={handleSignOut}>
+                <LogOut />
+                <span className="group-data-[collapsible=icon]:hidden">Sign Out</span>
+             </Button>
           </div>
         </SidebarFooter>
       </Sidebar>
