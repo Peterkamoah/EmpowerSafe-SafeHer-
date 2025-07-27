@@ -1,12 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useLocation } from "@/hooks/use-location";
 import { Loader, MapPin, Siren } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function PanicView() {
   const { location, error } = useLocation();
+  const router = useRouter();
+
+  const handleEndAlert = () => {
+    router.push("/");
+  };
 
   return (
     <div className="flex h-full w-full flex-col items-center justify-between p-8 text-center bg-destructive text-destructive-foreground animate-pulse-bg">
@@ -59,8 +64,8 @@ export function PanicView() {
         </div>
       </div>
 
-      <Button asChild size="lg" variant="secondary" className="w-full max-w-md font-bold text-destructive">
-        <Link href="/">End Alert</Link>
+      <Button onClick={handleEndAlert} size="lg" variant="secondary" className="w-full max-w-md font-bold text-destructive">
+        End Alert
       </Button>
     </div>
   );
