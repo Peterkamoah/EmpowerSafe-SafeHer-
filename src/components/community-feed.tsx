@@ -15,7 +15,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { PlusCircle, UserCircle, MessageCircle } from 'lucide-react';
+import { PlusCircle, UserCircle, MessageCircle, Loader } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from './ui/switch';
@@ -56,26 +56,32 @@ export function CommunityFeed() {
   const [newPost, setNewPost] = useState({ title: '', content: '' });
   const [isAnonymousPost, setAnonymousPost] = useState(false);
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   const handleCreatePost = () => {
     if (newPost.title && newPost.content) {
-      const post: Post = {
-        ...newPost,
-        id: Date.now(),
-        author: isAnonymousPost ? 'Anonymous' : 'You',
-        isAnonymous: isAnonymousPost,
-        comments: 0,
-        timestamp: 'Just now',
-      };
-      setPosts([post, ...posts]);
-      setNewPost({ title: '', content: '' });
-      setAnonymousPost(false);
-      setDialogOpen(false);
-      toast({
-        title: 'Post Created',
-        description: 'Your post has been shared with the community.',
-      });
+      setIsSubmitting(true);
+      // Simulate API call
+      setTimeout(() => {
+        const post: Post = {
+          ...newPost,
+          id: Date.now(),
+          author: isAnonymousPost ? 'Anonymous' : 'You',
+          isAnonymous: isAnonymousPost,
+          comments: 0,
+          timestamp: 'Just now',
+        };
+        setPosts([post, ...posts]);
+        setNewPost({ title: '', content: '' });
+        setAnonymousPost(false);
+        setDialogOpen(false);
+        setIsSubmitting(false);
+        toast({
+          title: 'Post Created',
+          description: 'Your post has been shared with the community.',
+        });
+      }, 1500);
     }
   };
 
@@ -104,6 +110,7 @@ export function CommunityFeed() {
                   value={newPost.title}
                   onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
                   placeholder="A descriptive title"
+                  disabled={isSubmitting}
                 />
               </div>
               <div className="space-y-2">
@@ -114,6 +121,7 @@ export function CommunityFeed() {
                   value={newPost.content}
                   onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
                   placeholder="Share your story or question..."
+                  disabled={isSubmitting}
                 />
               </div>
               <div className="flex items-center space-x-2">
@@ -121,15 +129,18 @@ export function CommunityFeed() {
                   id="anonymous-post"
                   checked={isAnonymousPost}
                   onCheckedChange={setAnonymousPost}
+                  disabled={isSubmitting}
                 />
                 <Label htmlFor="anonymous-post">Post Anonymously</Label>
               </div>
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline" disabled={isSubmitting}>Cancel</Button>
               </DialogClose>
-              <Button onClick={handleCreatePost}>Post</Button>
+              <Button onClick={handleCreatePost} disabled={isSubmitting}>
+                {isSubmitting ? <Loader className="animate-spin" /> : 'Post'}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
