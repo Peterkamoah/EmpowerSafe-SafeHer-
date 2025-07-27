@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -18,7 +19,7 @@ import {
 import { Logo } from "@/components/logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/hooks/use-auth";
+// import { useAuth } from "@/hooks/use-auth";
 import { Skeleton } from "@/components/ui/skeleton";
 import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
@@ -35,24 +36,29 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { user, loading } = useAuth();
+  // const { user, loading } = useAuth(); // Auth disabled for testing
   const router = useRouter();
 
   const handleSignOut = async () => {
-    await auth.signOut();
+    // await auth.signOut(); // Auth disabled
     router.push('/');
   }
 
-  if (loading) {
-    return (
-       <div className="flex h-screen w-screen items-center justify-center">
-         <Skeleton className="h-full w-full" />
-       </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //      <div className="flex h-screen w-screen items-center justify-center">
+  //        <Skeleton className="h-full w-full" />
+  //      </div>
+  //   );
+  // }
   
-  if (!user) {
-    return null; // The useAuth hook will handle the redirect
+  // if (!user) {
+  //   return null; // The useAuth hook will handle the redirect
+  // }
+
+  const mockUser = {
+      displayName: 'Test User',
+      photoURL: 'https://placehold.co/40x40.png',
   }
 
   return (
@@ -83,15 +89,15 @@ export default function DashboardLayout({
             <div className="flex items-center gap-2">
                 <Avatar className="h-8 w-8">
                   <AvatarImage
-                    src={user.photoURL || "https://placehold.co/40x40.png"}
-                    alt={user.displayName || "User avatar"}
+                    src={mockUser.photoURL || "https://placehold.co/40x40.png"}
+                    alt={mockUser.displayName || "User avatar"}
                     data-ai-hint="woman portrait"
                   />
-                  <AvatarFallback>{user.displayName?.[0] || 'U'}</AvatarFallback>
+                  <AvatarFallback>{mockUser.displayName?.[0] || 'U'}</AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col text-sm group-data-[collapsible=icon]:hidden">
                   <span className="font-semibold text-sidebar-foreground">
-                    {user.displayName || 'User'}
+                    {mockUser.displayName || 'User'}
                   </span>
                 </div>
             </div>
