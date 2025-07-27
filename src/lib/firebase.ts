@@ -10,7 +10,8 @@ const firebaseConfig = {
   storageBucket: "empowersafe-g2pno.firebasestorage.app",
   apiKey: "AIzaSyDaV8zePW4bRZ14fst9KolJamRlJ1hz-J8",
   authDomain: "empowersafe-g2pno.firebaseapp.com",
-  messagingSenderId: "977716741286"
+  messagingSenderId: "977716741286",
+  measurementId: ""
 };
 
 // Initialize Firebase
