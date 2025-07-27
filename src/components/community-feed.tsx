@@ -19,7 +19,6 @@ import { PlusCircle, UserCircle, MessageCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from './ui/switch';
-import { Separator } from './ui/separator';
 
 interface Post {
   id: number;
