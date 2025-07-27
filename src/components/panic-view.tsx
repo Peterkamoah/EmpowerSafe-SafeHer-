@@ -4,12 +4,56 @@ import { Button } from "@/components/ui/button";
 import { useLocation } from "@/hooks/use-location";
 import { Loader, MapPin, Siren } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 export function PanicView() {
   const { location, error } = useLocation();
   const router = useRouter();
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const getCameraPermission = async () => {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        toast({
+          variant: 'destructive',
+          title: 'Camera Not Supported',
+          description: 'Your browser does not support camera access.',
+        });
+        setHasCameraPermission(false);
+        return;
+      }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        setHasCameraPermission(true);
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error('Error accessing camera:', error);
+        setHasCameraPermission(false);
+        toast({
+          variant: 'destructive',
+          title: 'Camera Access Denied',
+          description: 'Please enable camera permissions in your browser settings.',
+        });
+      }
+    };
+
+    getCameraPermission();
+  }, [toast]);
+
 
   const handleEndAlert = () => {
+    // Stop camera stream
+    if (videoRef.current && videoRef.current.srcObject) {
+      const stream = videoRef.current.srcObject as MediaStream;
+      stream.getTracks().forEach(track => track.stop());
+    }
     router.push("/");
   };
 
@@ -38,13 +82,23 @@ export function PanicView() {
           Panic Mode
         </h1>
         <p className="mt-2 text-lg opacity-90">
-          Alert sent to your emergency contacts. Help is on the way.
+          Alert sent. Your camera is recording.
         </p>
       </div>
 
       <div className="flex w-full max-w-md flex-col items-center gap-4 rounded-lg bg-background/10 p-6 backdrop-blur-sm">
-        <h2 className="font-headline text-2xl font-semibold">Your Location</h2>
-        <div className="flex items-center gap-2 text-lg">
+        
+        <video ref={videoRef} className="w-full aspect-video rounded-md bg-background/20" autoPlay muted playsInline />
+        {hasCameraPermission === false && (
+          <Alert variant="destructive" className="mt-4 text-left">
+            <AlertTitle>Camera Access Required</AlertTitle>
+            <AlertDescription>
+              Please allow camera access to record evidence. Check your browser settings.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        <div className="flex items-center gap-2 text-lg mt-4">
           <MapPin className="h-6 w-6" />
           {error ? (
             <span className="text-yellow-300">{error}</span>
@@ -55,12 +109,9 @@ export function PanicView() {
           ) : (
             <div className="flex items-center gap-2">
               <Loader className="h-5 w-5 animate-spin" />
-              <span>Acquiring signal...</span>
+              <span>Acquiring location...</span>
             </div>
           )}
-        </div>
-        <div className="h-32 w-full rounded-md bg-background/20 flex items-center justify-center text-sm opacity-80">
-          Map will be displayed here
         </div>
       </div>
 
