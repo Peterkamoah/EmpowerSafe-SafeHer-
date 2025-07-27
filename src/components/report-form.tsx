@@ -27,7 +27,7 @@ export function ReportForm() {
         title: "Report Submitted",
         description: "Thank you for helping keep our community safe.",
       });
-      router.push("/dashboard");
+      router.push("/");
       setIsSubmitting(false);
     }, 1500);
   };

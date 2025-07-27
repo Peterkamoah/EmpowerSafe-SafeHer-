@@ -60,7 +60,7 @@ export function PanicView() {
       </div>
 
       <Button asChild size="lg" variant="secondary" className="w-full max-w-md font-bold text-destructive">
-        <Link href="/dashboard">End Alert</Link>
+        <Link href="/">End Alert</Link>
       </Button>
     </div>
   );
