@@ -9,27 +9,72 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { Send } from "lucide-react";
+import { Send, Loader } from "lucide-react";
+import { db } from "@/lib/firebase";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 export function ReportForm() {
   const { toast } = useToast();
   const router = useRouter();
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mediaFile, setMediaFile] = useState<File | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    const formData = new FormData(e.currentTarget);
+    const description = formData.get("description") as string;
+    const location = formData.get("location") as string;
+    const datetime = formData.get("datetime") as string;
+    
+    // NOTE: Using a mock user ID since auth is disabled for testing
+    const mockUserId = "test-user-123";
+
+    try {
+      let mediaUrl = null;
+
+      // 1. Upload media if it exists
+      if (mediaFile) {
+        const storage = getStorage();
+        const fileName = `${Date.now()}-${mediaFile.name}`;
+        const storagePath = `reports/${isAnonymous ? 'anonymous' : mockUserId}/${fileName}`;
+        const storageRef = ref(storage, storagePath);
+        
+        await uploadBytes(storageRef, mediaFile);
+        mediaUrl = await getDownloadURL(storageRef);
+      }
+
+      // 2. Create document in Firestore
+      await addDoc(collection(db, "reports"), {
+        reportingUserId: isAnonymous ? null : mockUserId,
+        description,
+        location,
+        incidentTimestamp: new Date(datetime),
+        mediaUrl,
+        isAnonymous,
+        status: 'new',
+        createdAt: serverTimestamp(),
+      });
+
       toast({
         title: "Report Submitted",
         description: "Thank you for helping keep our community safe.",
       });
       router.push("/");
+
+    } catch (error) {
+      console.error("Error submitting report:", error);
+      toast({
+        variant: "destructive",
+        title: "Submission Failed",
+        description: "There was an error submitting your report. Please try again.",
+      });
+    } finally {
       setIsSubmitting(false);
-    }, 1500);
+    }
   };
 
   return (
@@ -46,9 +91,11 @@ export function ReportForm() {
             <Label htmlFor="description">Description of Incident</Label>
             <Textarea
               id="description"
+              name="description"
               placeholder="Describe what happened..."
               rows={5}
               required
+              disabled={isSubmitting}
             />
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -56,18 +103,26 @@ export function ReportForm() {
               <Label htmlFor="location">Location</Label>
               <Input
                 id="location"
+                name="location"
                 placeholder="e.g., Corner of Main St & 1st Ave"
                 required
+                disabled={isSubmitting}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="datetime">Date & Time</Label>
-              <Input id="datetime" type="datetime-local" required />
+              <Input id="datetime" name="datetime" type="datetime-local" required disabled={isSubmitting}/>
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="media">Upload Media (Photos/Videos)</Label>
-            <Input id="media" type="file" className="file:text-primary file:font-semibold" />
+            <Input 
+              id="media" 
+              type="file" 
+              className="file:text-primary file:font-semibold" 
+              onChange={(e) => setMediaFile(e.target.files ? e.target.files[0] : null)}
+              disabled={isSubmitting}
+            />
             <p className="text-xs text-muted-foreground">Optional. Helps provide evidence.</p>
           </div>
           <div className="flex items-center space-x-2 rounded-md border p-4">
@@ -75,6 +130,7 @@ export function ReportForm() {
               id="anonymous"
               checked={isAnonymous}
               onCheckedChange={setIsAnonymous}
+              disabled={isSubmitting}
             />
             <Label htmlFor="anonymous" className="flex flex-col">
               <span>Report Anonymously</span>
@@ -85,8 +141,17 @@ export function ReportForm() {
           </div>
           <div className="flex justify-end">
             <Button type="submit" disabled={isSubmitting}>
-              <Send className="mr-2 h-4 w-4" />
-              {isSubmitting ? "Submitting..." : "Submit Report"}
+              {isSubmitting ? (
+                <>
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Send className="mr-2 h-4 w-4" />
+                  Submit Report
+                </>
+              )}
             </Button>
           </div>
         </form>
