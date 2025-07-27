@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from 'next/link';
@@ -67,7 +68,7 @@ export default function WelcomePage() {
             {isGoogleLoading ? 'Signing in...' : 'Sign in with Google'}
           </Button>
           <Button asChild variant="secondary" size="lg" className="w-full font-bold">
-            <Link href="/dashboard">Continue with Email</Link>
+            <Link href="/login">Continue with Email</Link>
           </Button>
         </CardContent>
       </Card>
