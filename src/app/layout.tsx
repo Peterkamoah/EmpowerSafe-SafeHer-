@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, MessageSquare, UserCircle, LogOut } from "lucide-react";
+import { Home, MessageSquare, UserCircle, LogOut, NotebookText } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -26,6 +26,7 @@ import { Toaster } from "@/components/ui/toaster";
 const navItems = [
   { href: "/", icon: Home, label: "Home" },
   { href: "/community", icon: MessageSquare, label: "Community" },
+  { href: "/journal", icon: NotebookText, label: "Journal" },
   { href: "/profile", icon: UserCircle, label: "Profile" },
 ];
 

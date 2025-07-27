@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -9,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { Send, Loader } from "lucide-react";
+import { Send, Loader, MessageCircle } from "lucide-react";
 import { db } from "@/lib/firebase";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
@@ -20,6 +21,7 @@ export function ReportForm() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [mediaFile, setMediaFile] = useState<File | null>(null);
+  const [reportSubmitted, setReportSubmitted] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,7 +65,7 @@ export function ReportForm() {
         title: "Report Submitted",
         description: "Thank you for helping keep our community safe.",
       });
-      router.push("/");
+      setReportSubmitted(true);
 
     } catch (error) {
       console.error("Error submitting report:", error);
@@ -72,10 +74,32 @@ export function ReportForm() {
         title: "Submission Failed",
         description: "There was an error submitting your report. Please try again.",
       });
-    } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (reportSubmitted) {
+    return (
+      <Card className="text-center p-8">
+        <CardHeader>
+          <CardTitle className="font-headline text-2xl">Thank You</CardTitle>
+          <CardDescription>
+            Your report has been submitted. Your courage helps make our community safer.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-col items-center gap-4">
+            <p>If you need to talk to someone, we're here for you.</p>
+            <Button onClick={() => router.push('/support-chat')}>
+              <MessageCircle className="mr-2 h-5 w-5" />
+              Speak to a Support Assistant
+            </Button>
+             <Button variant="outline" onClick={() => router.push('/')}>
+              Return to Dashboard
+            </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
