@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "safeher",
+    "name": "SafeHer",
     "slug": "safeher",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -8,15 +8,18 @@
     "scheme": "safeher",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
+    "description": "Your safety is our priority - A comprehensive safety app for women",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.safeher.app"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#F472B6"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.safeher.app"
     },
     "web": {
       "bundler": "metro",
@@ -31,7 +34,13 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 200,
           "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "backgroundColor": "#F472B6"
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "This app needs access to location for emergency alerts and safety features."
         }
       ]
     ],
