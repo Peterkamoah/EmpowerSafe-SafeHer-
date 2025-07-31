@@ -1,24 +1,40 @@
 import { StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { router } from 'expo-router';
+import * as Location from 'expo-location';
+import { db } from '@/firebase/config';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import { PanicButton } from '@/components/ui/PanicButton';
 import { SafeHerColors } from '@/constants/Colors';
 import { Layout } from '@/constants/Layout';
 
 export default function HomeScreen() {
-  const handlePanicPress = () => {
-    // TODO: Implement panic alert logic
-    Alert.alert(
-      'Emergency Alert Activated',
-      'This will be implemented in Task 3 with location tracking and emergency contacts notification.',
-      [{ text: 'OK' }]
-    );
+  const handlePanicPress = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission denied', 'Permission to access location was denied');
+      return;
+    }
+
+    let location = await Location.getCurrentPositionAsync({});
+    const panicAlertsRef = collection(db, 'PanicAlerts');
+    const newAlert = await addDoc(panicAlertsRef, {
+      userId: 'mockUser',
+      triggeredAt: serverTimestamp(),
+      status: 'active',
+      initialLocation: {
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      },
+    });
+
+    router.push({ pathname: '/(tabs)/PanicModeScreen', params: { alertId: newAlert.id } });
   };
 
   const handleReportIncident = () => {
-    // TODO: Navigate to report incident screen
-    Alert.alert('Report Incident', 'This feature will be implemented in Task 4.');
+    router.push('/(tabs)/ReportIncidentScreen');
   };
 
   const handleShareLocation = () => {

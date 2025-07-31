@@ -33,18 +33,18 @@ export function StyledInput({
   disabled = false,
   style,
 }: StyledInputProps) {
+  const [isFocused, setIsFocused] = React.useState(false);
   const inputStyles = [
     styles.input,
     multiline && styles.multilineInput,
     error && styles.inputError,
     disabled && styles.inputDisabled,
+    isFocused && styles.inputFocused,
   ].filter(Boolean);
 
   return (
     <View style={[styles.container, style]}>
-      {label && (
-        <ThemedText style={styles.label}>{label}</ThemedText>
-      )}
+      {label && <ThemedText style={styles.label}>{label}</ThemedText>}
       <TextInput
         style={inputStyles}
         placeholder={placeholder}
@@ -58,6 +58,8 @@ export function StyledInput({
         autoCapitalize={autoCapitalize}
         editable={!disabled}
         textAlignVertical={multiline ? 'top' : 'center'}
+        onFocus={() => setIsFocused(true)}
+        onBlur={() => setIsFocused(false)}
       />
       {error && (
         <ThemedText style={styles.errorText}>{error}</ThemedText>
@@ -93,6 +95,18 @@ const styles = StyleSheet.create({
   },
   inputError: {
     borderColor: SafeHerColors.danger,
+  },
+  inputFocused: {
+    borderColor: SafeHerColors.primary,
+    borderWidth: 1.5,
+    shadowColor: SafeHerColors.primary,
+    shadowOffset: {
+      width: 0,
+      height: 0,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
   inputDisabled: {
     backgroundColor: '#F3F4F6',
